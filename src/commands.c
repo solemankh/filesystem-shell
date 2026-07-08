@@ -5,10 +5,14 @@
 #include "fs.h"
 #include "commands.h"
 
+FileSystem current_fs = {0};
+int filesystem_mounted = 0;
+
 void execute_command(const char *input) {
     if(strcmp(input, "help") == 0) {
         printf("Available commands:\n");
         printf(" format\n");
+        printf(" mount\n");
         printf(" mkdir\n");
         printf(" cd\n");
         printf(" touch\n");
@@ -36,6 +40,48 @@ void execute_command(const char *input) {
             return;        
         }
     }
+
+    if (sscanf(input, "%63s %127s", cmd, filename) == 2) {
+        if (strcmp(cmd, "mount") == 0) {
+            if (fs_mount(filename, &current_fs) == 0) {
+                filesystem_mounted = 1;
+                printf("Filesystem mounted.\n");
+            }else {
+                printf("unable to mount filesystem.\n");
+            }
+            return;
+        }
+    }
+
+    char dirname[MAX_FILENAME_LENGTH];
+
+    if (sscanf(input, "%63s %31s", cmd, dirname) == 2) {
+        if (strcmp(cmd, "mkdir") == 0) {
+            if (!filesystem_mounted) {
+                printf("No filesystem mounyed.\n");
+                return;
+            }
+            int result = fs_create_directory(current_fs.base, dirname, CURRENT_DIRECTORY);
+
+            if (result >= 0)
+                printf("Directory '%s created.\n", dirname);
+            else
+                printf("Unable to create directory.\n");
+            return;        
+        }
+    }
+
+    if (strcmp(input, "debug_dirs") == 0) {
+        if (!filesystem_mounted) {
+            printf("No filesystem mounted.\n");
+            return;
+        }
+
+        fs_print_directories(current_fs.base);
+        return;
+    }
+
+
 
     printf("Unknown command: %s\n", input);
 }
