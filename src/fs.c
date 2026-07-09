@@ -98,6 +98,56 @@ int fs_find_directory(void *base, const char *name, int parent) {
     return -1;
 }
 
+int fs_find_free_file(void *base) {
+    FileEntry *files = fs_get_file_table(base);
+
+    for (int i = 0; i < MAX_FILES; i++) {
+        if (!files[i].used)
+            return i;
+    }
+
+    return -1;
+}
+
+int fs_find_file(void *base, const char *name, int parent) {
+    FileEntry *files = fs_get_file_table(base);
+
+    for (int i = 0; i < MAX_FILES; i++) {
+        if (files[i].used && files[i].parent == parent && strcmp(files[i].name, name) == 0) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int fs_create_file(void *base, const char *name, int parent) {
+    if (fs_find_file(base, name, parent) >= 0) {
+        printf("File already exists.\n");
+        return -1;
+    }
+
+    int index = fs_find_free_file(base);
+
+    if (index == -1)
+        return -1;
+
+    FileEntry *files = fs_get_file_table(base);
+
+    strncpy(files[index].name, name, MAX_FILENAME_LENGTH -1);
+    files[index].name[MAX_FILENAME_LENGTH -1] = '\0';
+
+    files[index].parent = parent;
+    files[index].size = 0;
+    files[index].offset = 0;
+    files[index].used = 1;
+
+    SuperBlock *sb = fs_get_superblock(base);
+    sb->file_count++;
+
+    return index;    
+}
+
 int fs_create_directory(void *base, const char *name, int parent) {
 
     if (fs_find_directory(base, name, parent) >= 0) {
@@ -183,4 +233,20 @@ void fs_print_directories(void *base) {
     }
 
     printf("------------------------\n");
+}
+
+void fs_print_files(void *base) {
+    FileEntry *files = fs_get_file_table(base);
+
+    printf("\nFile Table\n");
+    printf("---------------------------------\n");
+
+    for (int i = 0; i < MAX_FILES; i++) {
+        if (files[i].used) {
+            printf("[%d] %s parent=%d size=%zu\n", i, files[i].name, files[i].parent, files[i].size);
+
+        }
+    }
+
+    printf("--------------------------------\n");
 }

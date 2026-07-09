@@ -43,7 +43,7 @@ typedef struct {
     char name[MAX_FILENAME_LENGTH];
     int parent;
     size_t size;
-    size_t offest;
+    size_t offset;
     int used;
 } FileEntry;
 
@@ -82,10 +82,18 @@ int fs_find_free_directory(void *base);
 
 int fs_find_directory(void *base, const char *name, int parent);
 
+int fs_find_free_file(void *base);
+
+int fs_find_file(void *base, const char *name, int parent);
+
+int fs_create_file(void *base, const char *name, int parent);
+
 int fs_create_directory(void *base, const char *name, int parent);
 
 int fs_mount(const char *filename, FileSystem *fs);
 
 void fs_print_directories(void *base);
+
+void fs_print_files(void *base);
 
 #endif

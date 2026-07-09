@@ -58,16 +58,40 @@ void execute_command(const char *input) {
     if (sscanf(input, "%63s %31s", cmd, dirname) == 2) {
         if (strcmp(cmd, "mkdir") == 0) {
             if (!filesystem_mounted) {
-                printf("No filesystem mounyed.\n");
+                printf("No filesystem mounted.\n");
                 return;
             }
             int result = fs_create_directory(current_fs.base, dirname, CURRENT_DIRECTORY);
 
             if (result >= 0)
-                printf("Directory '%s created.\n", dirname);
+                printf("Directory '%s' created.\n", dirname);
             else
                 printf("Unable to create directory.\n");
             return;        
+        }
+    }
+
+    char filename_touch[MAX_FILENAME_LENGTH];
+
+    if (sscanf(input, "%63s %31s", cmd, filename_touch) == 2) {
+
+        if (strcmp(cmd, "touch") == 0) {
+
+            if (!filesystem_mounted) {
+                printf("No filesystem mounted.\n");
+                return;
+            }
+
+            int result = fs_create_file(current_fs.base,
+                                        filename_touch,
+                                        CURRENT_DIRECTORY);
+
+            if (result >= 0)
+                printf("File '%s' created.\n", filename_touch);
+            else
+                printf("Unable to create file.\n");
+
+            return;
         }
     }
 
@@ -78,6 +102,16 @@ void execute_command(const char *input) {
         }
 
         fs_print_directories(current_fs.base);
+        return;
+    }
+
+    if (strcmp(input, "debug_files") == 0) {
+        if (!filesystem_mounted) {
+            printf("No filesystem mounted.\n");
+            return;
+        }
+
+        fs_print_files(current_fs.base);
         return;
     }
 
