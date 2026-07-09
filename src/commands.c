@@ -133,6 +133,25 @@ void execute_command(const char *input) {
         }
     }
 
+    char rm_filename[MAX_FILENAME_LENGTH];
+    if (sscanf(input, "%63s %31s", cmd, rm_filename) == 2) {
+        if (strcmp(cmd, "rm") == 0) {
+            if (!filesystem_mounted) {
+                printf("No filesystem mounted.\n");
+                return;
+            }
+
+            int result = fs_remove_file(current_fs.base, rm_filename, CURRENT_DIRECTORY);
+
+            if (result == 0)
+                printf("File '%s' removed.\n", rm_filename);
+            else
+                printf("Unable to remove file.\n");
+
+            return;         
+        }
+    }
+
     if (strcmp(input, "ls") == 0) {
         if (!filesystem_mounted) {
             printf("No filesystem mounted.\n");

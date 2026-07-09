@@ -325,3 +325,28 @@ int fs_cat_file(void *base, const char *name, int parent) {
 
     return 0;
 }
+
+int fs_remove_file(void *base, const char *name, int parent) {
+    int index = fs_find_file(base, name, parent);
+
+    if (index < 0) {
+        printf("File not found.\n");
+        return -1;
+    }
+
+    FileEntry *files = fs_get_file_table(base);
+
+    files[index].used = 0;
+    files[index].size = 0;
+    files[index].offset = 0;
+    files[index].name[0] = '\0';
+    files[index].parent = -1;
+
+    SuperBlock *sb = fs_get_superblock(base);
+
+    if (sb->file_count > 0)
+        sb->file_count--;
+
+    return 0;    
+
+}
