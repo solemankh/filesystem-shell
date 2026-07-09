@@ -88,6 +88,12 @@ int fs_find_file(void *base, const char *name, int parent);
 
 int fs_create_file(void *base, const char *name, int parent);
 
+int fs_append_file(void *base, const char *name, int parent, const char *text);
+
+int fs_cat_file(void *base, const char *name, int parent);
+
+size_t fs_find_free_offset(void *base);
+
 int fs_create_directory(void *base, const char *name, int parent);
 
 int fs_mount(const char *filename, FileSystem *fs);
@@ -95,5 +101,7 @@ int fs_mount(const char *filename, FileSystem *fs);
 void fs_print_directories(void *base);
 
 void fs_print_files(void *base);
+
+void fs_list_directory(void *base, int parent);
 
 #endif

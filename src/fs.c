@@ -139,7 +139,7 @@ int fs_create_file(void *base, const char *name, int parent) {
 
     files[index].parent = parent;
     files[index].size = 0;
-    files[index].offset = 0;
+    files[index].offset = fs_find_free_offset(base);
     files[index].used = 1;
 
     SuperBlock *sb = fs_get_superblock(base);
@@ -249,4 +249,79 @@ void fs_print_files(void *base) {
     }
 
     printf("--------------------------------\n");
+}
+
+void fs_list_directory(void *base, int parent) {
+    DirectoryEntry *directories = fs_get_directory_table(base);
+    FileEntry *files = fs_get_file_table(base);
+
+    printf("Directories:\n");
+
+    for (int i = 0; i < MAX_DIRECTORIES; i++) {
+        if (directories[i].used && directories[i].parent == parent && strcmp(directories[i].name, "/") != 0) {
+            printf(" %s/\n", directories[i].name);
+        }
+    }
+
+    printf("\nFiles:\n");
+
+    for (int i = 0; i < MAX_FILES; i++) {
+        if (files[i].used && files[i].parent == parent) {
+            printf( "%s\n", files[i].name);
+        }
+    }
+}
+
+size_t fs_find_free_offset(void *base) {
+    FileEntry *files = fs_get_file_table(base);
+
+    size_t max_offset = DATA_AREA_OFFSET;
+    
+    for (int i = 0; i < MAX_FILES; i++) {
+        if (files[i].used) {
+            size_t end = files[i].offset + files[i].size;
+
+            if (end > max_offset)
+                max_offset = end;
+        }
+    }
+
+    return max_offset;
+}
+
+int fs_append_file(void *base, const char *name, int parent, const char *text) {
+    int index = fs_find_file(base, name, parent);
+
+    if (index < 0) {
+        printf("File not found.\n");
+        return -1;
+    }
+
+    FileEntry *files = fs_get_file_table(base);
+
+    char *data_area = (char *)base + files[index].offset;
+
+    strcpy(data_area + files[index].size, text);
+
+    files[index].size += strlen(text);
+
+    return 0;
+
+}
+
+int fs_cat_file(void *base, const char *name, int parent) {
+    int index = fs_find_file(base, name, parent);
+
+    if (index < 0) {
+        printf("File not found.\n");
+        return -1;
+    }
+
+    FileEntry *files = fs_get_file_table(base);
+
+    char *data = (char *)base + files[index].offset;
+
+    printf("%.*s\n", (int)files[index].size, data);
+
+    return 0;
 }

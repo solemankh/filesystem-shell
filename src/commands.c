@@ -47,7 +47,7 @@ void execute_command(const char *input) {
                 filesystem_mounted = 1;
                 printf("Filesystem mounted.\n");
             }else {
-                printf("unable to mount filesystem.\n");
+                printf("Unable to mount filesystem.\n");
             }
             return;
         }
@@ -93,6 +93,54 @@ void execute_command(const char *input) {
 
             return;
         }
+    }
+
+    char append_filename[MAX_FILENAME_LENGTH];
+    char append_text[256];
+
+    if (sscanf(input, "%63s %31s %255[^\n]", cmd, append_filename, append_text) ==3) {
+
+        if (strcmp(cmd, "append") == 0) {
+            if (!filesystem_mounted) {
+                printf("No filesystem mounted.\n");
+                return;
+            }
+
+            int result = fs_append_file(current_fs.base, append_filename, CURRENT_DIRECTORY, append_text);
+            if (result == 0)
+                printf("Text appended to '%s'.\n", append_filename);
+            else
+                printf("Unable to append text.\n");
+
+            return;        
+        }
+    }
+
+    char cat_filename[MAX_FILENAME_LENGTH];
+
+    if (sscanf(input, "%63s %31s", cmd, cat_filename) ==2) {
+        if (strcmp(cmd, "cat") == 0) {
+            if (!filesystem_mounted) {
+                printf("No filesystem mounted.\n");
+                return;
+            }
+
+            if (fs_cat_file(current_fs.base, cat_filename, CURRENT_DIRECTORY) != 0) {
+                printf("Unable to read file.\n");
+            }
+
+            return;
+        }
+    }
+
+    if (strcmp(input, "ls") == 0) {
+        if (!filesystem_mounted) {
+            printf("No filesystem mounted.\n");
+            return;
+        }
+
+        fs_list_directory(current_fs.base, CURRENT_DIRECTORY);
+        return;
     }
 
     if (strcmp(input, "debug_dirs") == 0) {
