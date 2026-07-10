@@ -82,6 +82,8 @@ int fs_find_free_directory(void *base);
 
 int fs_find_directory(void *base, const char *name, int parent);
 
+int fs_change_directory(void *base, const char *name, int parent);
+
 int fs_find_free_file(void *base);
 
 int fs_find_file(void *base, const char *name, int parent);
@@ -93,6 +95,8 @@ int fs_append_file(void *base, const char *name, int parent, const char *text);
 int fs_cat_file(void *base, const char *name, int parent);
 
 int fs_remove_file(void *base, const char *name, int parent);
+
+int fs_remove_directory(void *base, const char *name, int parent);
 
 size_t fs_find_free_offset(void *base);
 

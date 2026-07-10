@@ -330,7 +330,6 @@ int fs_remove_file(void *base, const char *name, int parent) {
     int index = fs_find_file(base, name, parent);
 
     if (index < 0) {
-        printf("File not found.\n");
         return -1;
     }
 
@@ -349,4 +348,52 @@ int fs_remove_file(void *base, const char *name, int parent) {
 
     return 0;    
 
+}
+
+int fs_remove_directory(void *base, const char *name, int parent) {
+    int index = fs_find_directory(base, name, parent);
+
+    if (index < 0) {
+        return -1;
+    }
+
+    DirectoryEntry *directories = fs_get_directory_table(base);
+
+    /*controlla che la directory sia vuota*/
+    for (int i = 0; i < MAX_DIRECTORIES; i++) {
+        if (directories[i].used && directories[i].parent == index) {
+            printf("Directory is not empty.\n");
+            return -1;
+        }
+    }
+
+    FileEntry *files = fs_get_file_table(base);
+
+    for (int i = 0; i < MAX_FILES; i++) {
+        if (files[i].used && files[i].parent == index) {
+            printf("Directory is not empty.\n");
+            return -1;
+        }
+    }
+
+    directories[index].used = 0;
+    directories[index].name[0] = '\0';
+    directories[index].parent = -1;
+
+    SuperBlock *sb = fs_get_superblock(base);
+
+    if (sb->directory_count > 0)
+        sb->directory_count--;
+
+    return 0;    
+
+}
+
+int fs_change_directory(void *base, const char *name, int parent) {
+    int index = fs_find_directory(base, name, parent);
+
+    if (index < 0)
+        return -1;
+
+    return index;    
 }

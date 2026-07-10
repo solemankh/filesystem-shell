@@ -9,7 +9,7 @@ extern FileSystem current_fs;
 
 extern int filesystem_mounted;
 
-#define CURRENT_DIRECTORY 0
+extern int current_directory;
 
 
 

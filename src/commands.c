@@ -7,6 +7,7 @@
 
 FileSystem current_fs = {0};
 int filesystem_mounted = 0;
+int current_directory = 0;
 
 void execute_command(const char *input) {
     if(strcmp(input, "help") == 0) {
@@ -61,13 +62,35 @@ void execute_command(const char *input) {
                 printf("No filesystem mounted.\n");
                 return;
             }
-            int result = fs_create_directory(current_fs.base, dirname, CURRENT_DIRECTORY);
+            int result = fs_create_directory(current_fs.base, dirname, current_directory);
 
             if (result >= 0)
                 printf("Directory '%s' created.\n", dirname);
             else
                 printf("Unable to create directory.\n");
             return;        
+        }
+    }
+
+    char cd_directory[MAX_FILENAME_LENGTH];
+
+    if (sscanf(input, "%63s %31s", cmd, cd_directory) == 2) {
+        if (strcmp(cmd, "cd") == 0) {
+            if (!filesystem_mounted) {
+                printf("No filesystem mounted.\n");
+                return;
+            }
+
+            int result = fs_change_directory(current_fs.base, cd_directory, current_directory);
+
+            if (result >= 0) {
+                current_directory = result;
+                printf("Current directory: %s\n", cd_directory);
+            } else {
+                printf("Directory not found.\n");
+            }
+
+            return;
         }
     }
 
@@ -84,7 +107,7 @@ void execute_command(const char *input) {
 
             int result = fs_create_file(current_fs.base,
                                         filename_touch,
-                                        CURRENT_DIRECTORY);
+                                        current_directory);
 
             if (result >= 0)
                 printf("File '%s' created.\n", filename_touch);
@@ -106,7 +129,7 @@ void execute_command(const char *input) {
                 return;
             }
 
-            int result = fs_append_file(current_fs.base, append_filename, CURRENT_DIRECTORY, append_text);
+            int result = fs_append_file(current_fs.base, append_filename, current_directory, append_text);
             if (result == 0)
                 printf("Text appended to '%s'.\n", append_filename);
             else
@@ -125,7 +148,7 @@ void execute_command(const char *input) {
                 return;
             }
 
-            if (fs_cat_file(current_fs.base, cat_filename, CURRENT_DIRECTORY) != 0) {
+            if (fs_cat_file(current_fs.base, cat_filename, current_directory) != 0) {
                 printf("Unable to read file.\n");
             }
 
@@ -141,12 +164,16 @@ void execute_command(const char *input) {
                 return;
             }
 
-            int result = fs_remove_file(current_fs.base, rm_filename, CURRENT_DIRECTORY);
+            int result = fs_remove_file(current_fs.base, rm_filename, current_directory);
+
+            if (result != 0) {
+                result = fs_remove_directory(current_fs.base, rm_filename, current_directory);
+            }
 
             if (result == 0)
-                printf("File '%s' removed.\n", rm_filename);
+                printf("'%s' removed.\n", rm_filename);
             else
-                printf("Unable to remove file.\n");
+                printf("Unable to remove '%s'.\n", rm_filename);
 
             return;         
         }
@@ -158,7 +185,7 @@ void execute_command(const char *input) {
             return;
         }
 
-        fs_list_directory(current_fs.base, CURRENT_DIRECTORY);
+        fs_list_directory(current_fs.base, current_directory);
         return;
     }
 
