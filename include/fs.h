@@ -104,6 +104,8 @@ int fs_create_directory(void *base, const char *name, int parent);
 
 int fs_mount(const char *filename, FileSystem *fs);
 
+int fs_close(FileSystem *fs);
+
 void fs_print_directories(void *base);
 
 void fs_print_files(void *base);

@@ -189,27 +189,24 @@ void execute_command(const char *input) {
         return;
     }
 
-    if (strcmp(input, "debug_dirs") == 0) {
+    
+
+    if (strcmp(input, "close") == 0) {
         if (!filesystem_mounted) {
             printf("No filesystem mounted.\n");
             return;
         }
 
-        fs_print_directories(current_fs.base);
-        return;
-    }
-
-    if (strcmp(input, "debug_files") == 0) {
-        if (!filesystem_mounted) {
-            printf("No filesystem mounted.\n");
-            return;
+        if (fs_close(&current_fs) == 0) {
+            filesystem_mounted = 0;
+            current_directory = 0;
+            printf("Filesystem closed.\n");
+        } else {
+            printf("Unable to close filesystem.\n");
         }
 
-        fs_print_files(current_fs.base);
         return;
     }
-
-
 
     printf("Unknown command: %s\n", input);
 }

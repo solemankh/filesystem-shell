@@ -1,24 +1,47 @@
 # Filesystem Shell
 
-Operating Systems Project
+Progetto sviluppato per il corso di **Sistemi Operativi**.
 
-## Description
+Il progetto implementa un semplice filesystem persistente basato su file mmappati (`mmap`) e una shell interattiva per la gestione di file e directory.
 
-This project implements a persistent memory-mapped filesystem with a command-line shell.
+## Funzionalità
 
-The filesystem is stored inside a memory-mapped file and supports basic file and directory operations.
+- Filesystem mmappato e persistente
+- Gestione di file e directory
+- Supporto ai comandi richiesti dalla traccia del progetto
 
-## Features
+## Comandi supportati
 
-- format
-- mkdir
-- cd
-- ls
-- touch
-- append
-- cat
-- rm
-- close
+| Comando | Descrizione |
+|----------|-------------|
+| `format <file> <size>` | Crea un nuovo filesystem |
+| `mount <file>` | Monta il filesystem |
+| `mkdir <dir>` | Crea una directory |
+| `cd <dir>` | Cambia directory (`..` e `/` supportati) |
+| `touch <file>` | Crea un file vuoto |
+| `append <file> <testo>` | Aggiunge testo a un file |
+| `cat <file>` | Visualizza il contenuto di un file |
+| `ls` | Elenca file e directory |
+| `rm <file/dir>` | Elimina un file o una directory vuota |
+| `close` | Chiude il filesystem |
 
+## Compilazione
 
+```bash
+make
+```
 
+## Esecuzione
+
+```bash
+./filesystem-shell
+```
+
+## Tecnologie utilizzate
+
+- Linguaggio C
+- POSIX API
+- `mmap`
+- `msync`
+- `munmap`
+- Makefile

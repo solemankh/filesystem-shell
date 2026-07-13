@@ -390,10 +390,46 @@ int fs_remove_directory(void *base, const char *name, int parent) {
 }
 
 int fs_change_directory(void *base, const char *name, int parent) {
+
+    DirectoryEntry *directories = fs_get_directory_table(base);
+
+    /* torna alla root*/
+    if (strcmp(name, "/") == 0) {
+        return 0;
+    }
+
+    /*torna alla directory padre*/
+    if (strcmp(name, "..") == 0) {
+
+        if (parent == 0)
+            return 0;
+
+        return directories[parent].parent;    
+    }
     int index = fs_find_directory(base, name, parent);
 
     if (index < 0)
         return -1;
 
     return index;    
+}
+
+int fs_close(FileSystem *fs) {
+    if (fs == NULL || fs->base == NULL)
+        return -1;
+
+    if (msync(fs->base, fs->size, MS_SYNC) < 0) {
+        perror("msync");
+        return -1;
+    }    
+
+    if (munmap(fs->base, fs->size) < 0) {
+        perror("munmap");
+        return -1;
+    }
+
+    fs->base = NULL;
+    fs->size = 0;
+
+    return 0;
 }
